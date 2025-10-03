@@ -1,1 +1,5 @@
-export const components: any = {};
+import Login from './LoginSSO';
+
+export const components: any = {
+  LoginSSO: Login,
+};

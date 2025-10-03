@@ -2,7 +2,7 @@ import { App } from 'antd';
 
 import { TAction, TActionMessage } from '@/types';
 
-import { TActionsProps } from './useActions';
+import { TActionsProps } from './useActionsV2';
 import { THandleDataParams, useHandleData } from './useHandleData';
 
 enum MESSAGE_TYPE {

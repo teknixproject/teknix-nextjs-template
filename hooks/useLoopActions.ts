@@ -1,10 +1,6 @@
 import { stateManagementStore } from '@/stores';
 import {
-  TAction,
-  TActionLoop,
-  TActionLoopOverList,
-  TConditionChildMap,
-  TTypeSelectState,
+    TAction, TActionLoop, TActionLoopOverList, TConditionChildMap, TTypeSelectState
 } from '@/types';
 
 import { actionHookSliceStore } from './store/actionSliceStore';

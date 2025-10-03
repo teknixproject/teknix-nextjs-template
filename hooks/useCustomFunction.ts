@@ -4,7 +4,7 @@ import { customFunctionStore } from '@/stores/customFunction';
 import { TAction, TActionCustomFunction, TTypeSelect } from '@/types';
 
 import { handleCustomFunction as handleFunction } from './handleCustomFunction';
-import { TActionsProps } from './useActions';
+import { TActionsProps } from './useActionsV2';
 import { getOldOutput } from './useApiCallAction';
 import { THandleDataParams, useHandleData } from './useHandleData';
 

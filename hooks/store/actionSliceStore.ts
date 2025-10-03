@@ -7,17 +7,21 @@ type TState = {
   actions: {
     [key: string]: TTriggerActions;
   };
-  triggerName: TTriggerValue;
+  triggerName: {
+    [key: string]: TTriggerValue;
+  };
+
   formData: any;
   valueStream: any;
 };
-
+const initState: TState = { actions: {}, triggerName: {}, formData: null, valueStream: null };
 export type TActionHookActions = {
-  setTriggerName: (triggerName: TTriggerValue) => void;
+  setTriggerName: (data: { triggerName: TTriggerValue; nodeId: string }) => void;
   addTriggerFull: (data: { triggerFull: TTriggerActions; nodeId: string }) => void;
   setMultipleActions: (data: {
     triggerName?: TTriggerValue;
-    actions: TState['actions'];
+    actions: TTriggerActions;
+    nodeId: string;
   }) => Promise<void>;
   getFormData: () => any;
   findAction: ({ nodeId, actionId }: { nodeId: string; actionId: string }) => TAction | undefined;
@@ -34,10 +38,6 @@ export const actionHookSliceStore = create<TState & TActionHookActions>()(
       triggerName: 'onClick',
       formData: null,
 
-      setTriggerName: (triggerName) => {
-        set({ triggerName }, false, 'actionHook/setTriggerName');
-      },
-
       setFormData: (formData) => {
         set({ formData }, false, 'actionHook/setFormData');
       },
@@ -52,24 +52,31 @@ export const actionHookSliceStore = create<TState & TActionHookActions>()(
           'actionHook/addTriggerFull'
         );
       },
-      setMultipleActions(data) {
+      setMultipleActions({ actions, triggerName, nodeId }) {
         set(
           (state) => ({
             ...state,
-            actions: { ...state.actions, ...data.actions },
-            triggerName: data.triggerName ?? state.triggerName,
+            actions: { ...state.actions, [nodeId]: actions },
+            triggerName: { ...state.triggerName, [nodeId]: triggerName! },
           }),
           false,
           'actionHook/setMultipleActions'
         );
       },
-
+      setTriggerName({ triggerName, nodeId }) {
+        set((state) => ({
+          ...state,
+          triggerName: { ...state.triggerName, [nodeId]: triggerName },
+        }));
+      },
       setValueStream: (valueStream) => {
         set({ valueStream }, false, 'actionHook/setvalueStream');
       },
       findAction: ({ nodeId, actionId }) => {
-        const trigger = get().triggerName;
-        const action = get().actions?.[nodeId]?.[trigger]?.data?.[actionId];
+        const triggerFull = get().actions[nodeId];
+        const triggerName = get().triggerName[nodeId];
+
+        const action = triggerFull?.[triggerName]?.data?.[actionId];
         return action || undefined;
       },
 
@@ -84,9 +91,7 @@ export const actionHookSliceStore = create<TState & TActionHookActions>()(
       reset: () => {
         set(
           {
-            actions: {},
-            triggerName: 'onClick',
-            formData: null,
+            ...initState,
           },
           false,
           'actionHook/reset'

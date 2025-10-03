@@ -1,11 +1,9 @@
-import dayjs from 'dayjs';
 /* eslint-disable react-hooks/exhaustive-deps */
 import { JSONPath } from 'jsonpath-plus';
-import _, { isEqual } from 'lodash';
+import _ from 'lodash';
 import { useParams } from 'next/navigation';
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { FieldValues, UseFormReturn } from 'react-hook-form';
-import { useDeepCompareMemo } from 'use-deep-compare';
+import { useCallback, useRef } from 'react';
+import { FieldValues, UseFieldArrayReturn, UseFormReturn } from 'react-hook-form';
 
 import { stateManagementStore } from '@/stores';
 import { customFunctionStore } from '@/stores/customFunction';
@@ -14,53 +12,9 @@ import { TData, TDataField, TOptionApiResponse } from '@/types/dataItem';
 import { GridItem } from '@/types/gridItem';
 import { executeConditionalInData } from '@/utils/handleConditionInData';
 import { transformVariable } from '@/utils/tranformVariable';
-import { isTData } from '@/utils/transfromProp';
 
 import { handleCustomFunction } from './handleCustomFunction';
 import { findRootConditionChild, handleCompareCondition } from './useConditionAction';
-
-const ignoreFieldsListen = [
-  // 'children',
-  'box',
-  'renderItem',
-  'column',
-  // 'items',
-  // 'childs',
-  'dataProps',
-  'actions',
-];
-function extractVariableIdsWithLodash(obj: any): string[] {
-  const variableIds: string[] = [];
-
-  function collectVariableIds(value: any, key: string) {
-    if (key === 'variableId' && typeof value === 'string') {
-      variableIds.push(value);
-    }
-  }
-
-  function deepIterate(obj: any) {
-    _.forOwn(obj, (value, key) => {
-      // if (ignoreFieldsListen.includes(key)) return;
-      collectVariableIds(value, key);
-
-      if (_.isObject(value) && !ignoreFieldsListen.includes(key)) {
-        deepIterate(value);
-      }
-    });
-
-    if (_.isArray(obj)) {
-      obj.forEach((item) => {
-        if (_.isObject(item)) {
-          deepIterate(item);
-        }
-      });
-    }
-  }
-
-  deepIterate(obj);
-
-  return _.uniq(variableIds);
-}
 
 enum OPTIONS_HANDLE {
   NO_ACTION = 'noAction',
@@ -71,9 +25,7 @@ enum OPTIONS_HANDLE {
 }
 
 type UseHandleDataReturn = {
-  dataState?: any;
   getData: (data: TData | null | undefined, params?: THandleDataParams) => any;
-  getTrackedData: (data: TData | null | undefined, valueStream?: any) => any;
 };
 
 const handleCompareValue = ({
@@ -89,7 +41,7 @@ const handleCompareValue = ({
   return handleCompareCondition(rootCondition?.id || '', conditionChildMap, getData);
 };
 
-type TUseHandleData = {
+export type TUseHandleData = {
   dataProp?: { name: string; data: TData }[];
   componentProps?: Record<string, TData>;
   valueStream?: any;
@@ -97,19 +49,7 @@ type TUseHandleData = {
   valueType?: string;
   activeData?: GridItem;
   methods?: UseFormReturn<FieldValues, any, FieldValues>;
-};
-
-const getIdInData = (data: TData) => {
-  const type = data?.type;
-  if (['appState', 'componentState', 'globalState', 'apiResponseState'].includes(type)) {
-    return data[type].variableId;
-  }
-};
-
-const getVariableIdsFormData = (dataProps: TUseHandleData['dataProp']) => {
-  const ids = dataProps?.map((item) => getIdInData(item.data));
-  const cleaned = _.compact(ids);
-  return cleaned;
+  methodsArray?: UseFieldArrayReturn<FieldValues, string, 'id'>;
 };
 
 export type THandleDataParams = {
@@ -120,14 +60,8 @@ export type THandleDataParams = {
 export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   const params = useParams();
   const findCustomFunction = customFunctionStore((state) => state.findCustomFunction);
-  const [dataState, setDataState] = useState<any>();
   const itemInList = useRef(null);
   const findVariable = stateManagementStore((state) => state.findVariable);
-
-  // FIX: Use ref to prevent infinite re-renders
-  const getDataRef = useRef<any>(null);
-
-  const variableids = useMemo(() => extractVariableIdsWithLodash(props.activeData), []);
 
   // FIX: Stabilize dependencies with useMemo
   const stableDeps = {
@@ -146,7 +80,6 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
   const handleItemInList = (data: TData, valueStream: any) => {
     const { jsonPath, getIndex } = data.itemInList;
     if (getIndex) {
-      console.log('🚀 ~ handleItemInList ~ stableDeps.index:', stableDeps.index);
       return stableDeps.index;
     }
     if (jsonPath) {
@@ -635,136 +568,7 @@ export const useHandleData = (props: TUseHandleData): UseHandleDataReturn => {
     [handleApiResponse, handleState, stableDeps]
   );
 
-  // FIX: Use deep comparison for props to prevent unnecessary re-runs
-  const stableProps = useDeepCompareMemo(
-    () => ({
-      dataProp: props?.dataProp,
-      componentProps: props?.componentProps,
-      valueStream: props?.valueStream,
-      valueType: props?.valueType,
-    }),
-    [props?.dataProp, props?.componentProps, props?.valueStream, props?.valueType]
-  );
-
-  // Process data state - FIX: Remove getData from dependencies, use stable props
-  const processDataState = useCallback(async () => {
-    try {
-      const newDataState: any = {};
-
-      if (stableProps.dataProp?.length) {
-        const dataPromises = stableProps.dataProp.map(async (item) => {
-          const value = await getData(item.data, {
-            valueStream: stableProps.valueStream,
-          });
-          return { name: item.name, value };
-        });
-
-        const resolvedData = await Promise.all(dataPromises);
-        resolvedData.forEach(({ name, value }) => {
-          newDataState[name] = value;
-        });
-      }
-
-      if (stableProps.componentProps) {
-        const componentPromises = Object.entries(stableProps.componentProps).map(
-          async ([key, value]) => {
-            if (isTData(value)) {
-              const data = {
-                type: value.type,
-                [value.type]: value[value.type],
-              } as TData;
-
-              let valueConvert = await getData(data, {
-                valueStream: stableProps.valueStream,
-              });
-
-              if (stableProps.valueType?.toLowerCase() === 'datepicker') {
-                if (key === 'value' || key === 'defaultValue') {
-                  valueConvert = valueConvert ? dayjs(valueConvert) : dayjs();
-                }
-              }
-              return { key, value: valueConvert };
-            }
-            return { key, value };
-          }
-        );
-
-        const resolvedComponents = await Promise.all(componentPromises);
-        resolvedComponents.forEach(({ key, value }) => {
-          newDataState[key] = value;
-        });
-      }
-
-      setDataState((prevState: any) => {
-        if (_.isEqual(prevState, newDataState)) {
-          // console.log('Data state unchanged, skipping update');
-          return prevState;
-        }
-        return newDataState;
-      });
-    } catch (error) {
-      console.error('Error processing data state:', error);
-    }
-  }, [stableProps]); // FIX: Only depend on stable props
-
-  const getTrackedData = useCallback((data: TData | null | undefined, valueStream?: any) => {
-    return getData(data, { valueStream });
-  }, []);
-
-  // FIX: Only run once on mount and when stableProps change significantly
-  const hasInitialized = useRef(false);
-  useLayoutEffect(() => {
-    if (!hasInitialized.current) {
-      hasInitialized.current = true;
-      processDataState();
-    }
-  }, []);
-
-  // FIX: Run when stable props actually change
-  useLayoutEffect(() => {
-    if (hasInitialized.current) {
-      processDataState();
-    }
-  }, [processDataState]);
-
-  // Subscribe to state changes - FIX: Prevent multiple subscriptions
-  useLayoutEffect(() => {
-    if (!variableids.length) {
-      return;
-    }
-
-    const unsub = stateManagementStore.subscribe(
-      (state) => [
-        ...Object.values(state.apiResponse || {}).filter(
-          (item) => item.id && variableids.includes(item.id)
-        ),
-        ...Object.values(state.componentState || {}).filter(
-          (item) => item.id && variableids.includes(item.id)
-        ),
-        ...Object.values(state.globalState || {}).filter(
-          (item) => item.id && variableids.includes(item.id)
-        ),
-        ...Object.values(state.appState || {}).filter(
-          (item) => item.id && variableids.includes(item.id)
-        ),
-      ],
-      (value, prev) => {
-        if (isEqual(value, prev)) {
-          return;
-        }
-
-        processDataState();
-      }
-    );
-
-    return () => {
-      unsub();
-    };
-  }, [variableids]);
-
   return {
     getData,
-    dataState,
-    getTrackedData,
   };
 };

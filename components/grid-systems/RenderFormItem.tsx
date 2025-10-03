@@ -3,7 +3,7 @@
 import { Checkbox, DatePicker, Switch, Upload, UploadFile } from 'antd';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import { FC, useEffect, useMemo } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useDeepCompareMemo } from 'use-deep-compare';
 
@@ -11,6 +11,7 @@ import { useActionsV2 } from '@/hooks/useActionsV2';
 import { useRenderItem } from '@/hooks/useRenderItem';
 import { getPropActions, prepareActions } from '@/utils';
 import { getComponentType } from '@/utils/component';
+import { useQuery } from '@tanstack/react-query';
 
 import { componentRegistry } from './ListComponent';
 import RenderComponent from './RenderComponent';
@@ -24,7 +25,7 @@ const RenderFormItem: FC<TProps> = (props) => {
   //handle actions
   const { handleAction } = useActionsV2({ data, valueStream: props.valueStream, methods });
 
-  const { valueType, propsCpn } = useRenderItem({
+  const { valueType, propsCpn: propsCpnHook } = useRenderItem({
     ...props,
     data,
     valueStream,
@@ -33,9 +34,13 @@ const RenderFormItem: FC<TProps> = (props) => {
   //prepare actions
   const events = useDeepCompareMemo(() => {
     return prepareActions({ data, handleAction, props });
-  }, [data, handleAction]);
+  }, [data?.actions, data?.componentProps?.dataProps, data?.componentProps?.actions]);
 
-  const { name, ...rest } = { ...propsCpn, ...events };
+  const rest = useDeepCompareMemo(() => {
+    const { name, ...rest } = _.merge({}, propsCpnHook, events);
+    return rest;
+  }, [propsCpnHook, events]);
+
   const { control } = methods;
   const currentFormKeys = formKeysArray || formKeys;
   const inFormKeys = currentFormKeys?.find((item) => item?.value === data?.name);
@@ -46,13 +51,19 @@ const RenderFormItem: FC<TProps> = (props) => {
     [valueType]
   );
 
-  //handle page load for actions
-  useEffect(() => {
-    const actionsProps = getPropActions(data);
-    if ('onPageLoad' in actionsProps || {}) handleAction('onPageLoad');
-  }, []);
+  const checkOnPageLoad = useDeepCompareMemo(() => {
+    const actions = getPropActions(data);
+    return 'onPageLoad' in actions;
+  }, [data.actions, data.componentProps?.dataProps, data.componentProps?.actions]);
 
-  const getFieldName = () => {
+  //handle page load for actions
+  const { isLoading } = useQuery({
+    queryKey: ['onPageLoad', data?.id],
+    queryFn: async () => (await events?.onPageLoad?.()) || {},
+    enabled: checkOnPageLoad,
+  });
+
+  const getFieldName = useCallback(() => {
     if (!inFormKeys) return '';
 
     if (parentPath && typeof index === 'number') {
@@ -60,11 +71,11 @@ const RenderFormItem: FC<TProps> = (props) => {
     } else {
       return inFormKeys.key;
     }
-  };
+  }, [inFormKeys, parentPath, index]);
 
   const nameField = getFieldName();
 
-  const { isInput } = getComponentType(data?.value || '');
+  const { isInput } = useMemo(() => getComponentType(data?.value || ''), [data?.value]);
 
   if (!valueType) return <div></div>;
 
@@ -211,7 +222,7 @@ const RenderFormItem: FC<TProps> = (props) => {
     return <Component {...rest} />;
   }
 
-  if (valueType === 'container' && propsCpn && 'mount' in propsCpn && !propsCpn.mount) {
+  if (valueType === 'container' && propsCpnHook && 'mount' in propsCpnHook && !propsCpnHook.mount) {
     return null;
   }
 

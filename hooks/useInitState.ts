@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import _, { isEqual } from 'lodash';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDeepCompareMemo } from 'use-deep-compare';
 
 import { useConstructorDataAPI, usePreviewUI } from '@/app/actions/use-constructor';
@@ -147,13 +147,7 @@ export const useInitStatePreview = () => {
   const setStateFormDataPreview = useCallback(() => {
     if (_.isEmpty(state)) return;
 
-    const stateTypes: TTypeSelect[] = [
-      'appState',
-      'globalState',
-      'componentState',
-      'apiResponse',
-      'dynamicGenerate',
-    ];
+    const stateTypes: TTypeSelect[] = ['appState', 'globalState', 'componentState', 'apiResponse'];
 
     stateTypes.forEach((type) => {
       if (state[type]) {
@@ -166,7 +160,7 @@ export const useInitStatePreview = () => {
   }, [state, setStateManagement]);
 
   // Effect for data initialization
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!uid || !projectId) return;
 
     const initializeData = async () => {
@@ -224,7 +218,7 @@ export const useInitStateRender = () => {
 
   const { bodyLayout } = useConstructorDataAPI(uid || '');
 
-  const selectedBodyLayout = useMemo(
+  const selectedBodyLayout = useDeepCompareMemo(
     () => bodyLayout[deviceType] ?? bodyLayout ?? {},
     [bodyLayout, deviceType]
   );
@@ -254,7 +248,7 @@ export const useInitStateRender = () => {
     refetchOnWindowFocus: false,
   });
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (typeof window === 'undefined') return;
     const handleResize = () => {
       setDeviceType(getDeviceType());
@@ -265,7 +259,7 @@ export const useInitStateRender = () => {
     };
   }, []);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (enable) {
       const pageRole = pages.find(
         (item: TAuthSetting['pages'][number]) => item.documentId.uid === pathname
@@ -326,13 +320,7 @@ const getStates = async ({
   setStateManagement: Function;
   projectId: string;
 }) => {
-  const list: TTypeSelectState[] = [
-    'parameters',
-    'appState',
-    'componentState',
-    'globalState',
-    'apiResponse',
-  ];
+  const list: TTypeSelectState[] = ['parameters', 'appState', 'globalState', 'apiResponse'];
   try {
     await Promise.all(
       list.map(async (type: TTypeSelectState) => {

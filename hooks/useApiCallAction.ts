@@ -8,17 +8,11 @@ import { useCallback } from 'react';
 import { stateManagementStore } from '@/stores';
 import { authSettingStore } from '@/stores/authSetting';
 import {
-  TAction,
-  TActionApiCall,
-  TActionVariable,
-  TApiCallValue,
-  TApiCallVariable,
-  TData,
-  TTypeSelect,
+    TAction, TActionApiCall, TActionVariable, TApiCallValue, TApiCallVariable, TData, TTypeSelect
 } from '@/types';
 import { replaceEnv, variableUtil } from '@/utils';
 
-import { TActionsProps } from './useActions';
+import { TActionsProps } from './useActionsV2';
 import { useApiCall } from './useApiCall';
 import { THandleDataParams, useHandleData } from './useHandleData';
 
@@ -242,7 +236,6 @@ export const useApiCallAction = (props: TActionsProps): TUseActions => {
     };
   const handleBody = (apiCall: TApiCallValue, variables: Record<string, any>) => {
     const formData = props.methods?.getValues();
-    console.log('🚀 ~ handleBody ~ formData:', formData);
     return formData || convertApiCallBody(apiCall?.body, variables);
   };
   const handleApiCallAction = async (

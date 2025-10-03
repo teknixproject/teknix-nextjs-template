@@ -59,6 +59,42 @@ export const getPropActions = (data: GridItem): TTriggerActions => {
 
   return result;
 };
+// export const prepareActions = ({
+//   data,
+//   handleAction,
+//   props,
+//   setLoading,
+// }: {
+//   data: GridItem;
+//   handleAction: TUseActions['handleAction'];
+//   props: THandleDataParams;
+//   setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+// }) => {
+//   const actions = getPropActions(data);
+
+//   return Object.fromEntries(
+//     Object.entries(actions).map(([key, value]) => {
+//       const normalizedKey = key.replace(/-/g, '.');
+//       return [
+//         normalizedKey,
+//         async (...callbackArgs: any[]) => {
+//           try {
+//             setLoading?.(true);
+//             await handleAction(key, undefined, {
+//               callbackArgs,
+//               valueStream: props.valueStream,
+//             });
+//           } catch (error) {
+//             console.error(`Error in action ${data?.id} - ${key}:`, error);
+//           } finally {
+//             setLoading?.(false);
+//           }
+//         },
+//       ];
+//     })
+//   );
+// };
+
 export const prepareActions = ({
   data,
   handleAction,
@@ -71,29 +107,30 @@ export const prepareActions = ({
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const actions = getPropActions(data);
-  const validActions = _.pickBy(
-    actions,
-    (value) => value?.data && Object.keys(value.data).length > 0
-  );
 
-  return Object.fromEntries(
-    Object.entries(validActions).map(([key, value]) => [
-      key,
-      async (...callbackArgs: any[]) => {
-        return (async () => {
-          try {
-            setLoading?.(true);
-            await handleAction(key, undefined, {
-              callbackArgs,
-              valueStream: props.valueStream,
-            });
-          } catch (error) {
-            console.error(`Error in action ${key}:`, error);
-          } finally {
-            setLoading?.(false);
-          }
-        })();
-      },
-    ])
-  );
+  const result: Record<string, any> = {};
+
+  for (const [key] of Object.entries(actions)) {
+    // convert a-b → a.b
+    const path = key.replace(/-/g, '.');
+    const fn = async (...callbackArgs: any[]) => {
+      try {
+        setLoading?.(true);
+        await handleAction(key, undefined, {
+          callbackArgs,
+          valueStream: props.valueStream,
+        });
+      } catch (error) {
+        console.error(`Error in action ${data?.id} - ${key}:`, error);
+      } finally {
+        setLoading?.(false);
+      }
+    };
+
+    // dùng lodash.set để gán fn vào path
+    _.set(result, path, fn);
+  }
+  if (data?.value?.toLowerCase() === 'list') console.log('🚀 ~ prepareActions ~ result:', result);
+
+  return result;
 };

@@ -1,6 +1,6 @@
 'use client';
-import { Flex, Image, Progress } from 'antd';
-import { useState, useEffect, useRef } from 'react';
+import { Flex, Image } from 'antd';
+import { useEffect, useRef, useState } from 'react';
 
 interface LoadingDefaultXstudioProps {
   onLoadingComplete?: () => void;
@@ -9,7 +9,7 @@ interface LoadingDefaultXstudioProps {
 
 export default function LoadingDefaultXstudio({
   onLoadingComplete,
-  duration = 0
+  duration = 0,
 }: LoadingDefaultXstudioProps = {}) {
   const [progress, setProgress] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -46,15 +46,9 @@ export default function LoadingDefaultXstudio({
       {/* Main Content */}
       <Flex className="relative z-10 h-full justify-center items-center">
         <div className="max-w-md w-full mx-4 px-8">
-
           {/* Header Section */}
           <div className="text-center mb-12">
-            <Image
-              width={200}
-              src="./logo.png"
-              alt='logo-xstudio'
-              preview={false}
-            />
+            <Image width={200} src="/logo.png" alt="logo-xstudio" preview={false} />
           </div>
 
           {/* Custom Progress Bar */}
@@ -64,7 +58,8 @@ export default function LoadingDefaultXstudio({
                 className="bg-blue-500 h-1.5 rounded-full transition-all duration-300 ease-out relative shadow-lg"
                 style={{
                   width: `${progress}%`,
-                  boxShadow: 'rgb(59, 130, 246) 0px 0px 10px, rgb(59, 130, 246) 0px 0px 0px, rgb(59, 125, 246) 0px 0px 1px'
+                  boxShadow:
+                    'rgb(59, 130, 246) 0px 0px 10px, rgb(59, 130, 246) 0px 0px 0px, rgb(59, 125, 246) 0px 0px 1px',
                 }}
               >
                 {/* Inner glow */}
@@ -74,9 +69,7 @@ export default function LoadingDefaultXstudio({
 
             {/* Progress percentage */}
             <div className="text-center">
-              <span className="text-blue-400 font-medium text-sm">
-                {Math.floor(progress)}%
-              </span>
+              <span className="text-blue-400 font-medium text-sm">{Math.floor(progress)}%</span>
             </div>
           </div>
         </div>
@@ -84,10 +77,15 @@ export default function LoadingDefaultXstudio({
 
       <style jsx>{`
         @keyframes pulse {
-          0%, 100% { opacity: 0.75 }
-          50% { opacity: 1 }
+          0%,
+          100% {
+            opacity: 0.75;
+          }
+          50% {
+            opacity: 1;
+          }
         }
-        
+
         .animate-pulse {
           animation: pulse 2s infinite;
         }

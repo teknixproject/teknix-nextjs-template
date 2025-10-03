@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { TAction, TActionNavigate } from '@/types';
 import { buildPathFromPattern } from '@/utils/pathname';
 
-import { TActionsProps } from './useActions';
+import { TActionsProps } from './useActionsV2';
 import { THandleDataParams, useHandleData } from './useHandleData';
 
 export type TUseActions = {

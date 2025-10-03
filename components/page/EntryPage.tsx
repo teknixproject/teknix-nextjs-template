@@ -1,8 +1,6 @@
 import { FC } from 'react';
-import { RenderUIClient } from '../grid-systems/ClientWrapGridSystem';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+import { RenderUIClient } from '../grid-systems/ClientWrapGridSystem';
 
 const EntryPage: FC = async () => {
   return <RenderUIClient />;

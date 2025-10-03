@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { stateManagementStore } from '@/stores';
 import { TAction, TActionUpdateState, TTypeSelectState } from '@/types';
 
-import { TActionsProps } from './useActions';
+import { TActionsProps } from './useActionsV2';
 import { THandleDataParams, useHandleData } from './useHandleData';
 
 export type TUseActions = {

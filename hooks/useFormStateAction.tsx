@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import { TAction, TActionFormState } from '@/types';
 
-import { TActionsProps } from './useActions';
+import { TActionsProps } from './useActionsV2';
 import { THandleDataParams, useHandleData } from './useHandleData';
 
 export type TUseActions = {

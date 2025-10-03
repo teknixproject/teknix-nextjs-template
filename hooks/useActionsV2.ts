@@ -4,21 +4,9 @@ import { useCallback } from 'react';
 import { FieldValues, UseFieldArrayReturn, UseFormReturn } from 'react-hook-form';
 
 import {
-  ACTION_FC_TYPE,
-  ACTION_TYPE,
-  TAction,
-  TActionApiCall,
-  TActionCustomFunction,
-  TActionFormState,
-  TActionLoop,
-  TActionMessage,
-  TActionNavigate,
-  TActionUpdateState,
-  TConditional,
-  TConditionChildMap,
-  TTriggerActions,
-  TTriggerActionValue,
-  TTriggerValue,
+    ACTION_FC_TYPE, ACTION_TYPE, TAction, TActionApiCall, TActionCustomFunction, TActionFormState,
+    TActionLoop, TActionMessage, TActionNavigate, TActionUpdateState, TConditional,
+    TConditionChildMap, TTriggerActions, TTriggerActionValue, TTriggerValue
 } from '@/types';
 import { GridItem } from '@/types/gridItem';
 import { getPropActions } from '@/utils';
@@ -130,7 +118,6 @@ export const useActionsV2 = (props: TActionsProps): TUseActions => {
     }
     if (action.next) {
       const nextAction = findAction({ nodeId: data?.id as string, actionId: action.next });
-      console.log(`🚀 ~ executeActionFCType ~ nextAction: ${data?.id}`, nextAction);
       await executeActionFCType(nextAction, params);
     }
     return valueReturnCondition;
@@ -182,31 +169,40 @@ export const useActionsV2 = (props: TActionsProps): TUseActions => {
     }
   };
 
+  // useDeepCompareEffect(() => {
+  //   const triggerFull = getPropActions(data!);
+  //   if (_.isEmpty(triggerFull)) return;
+  //   setMultipleActions({
+  //     actions: triggerFull,
+  //     triggerName: '',
+  //     nodeId: data?.id as string,
+  //   });
+  // }, [data?.actions, data?.componentProps?.dataProps, data?.componentProps?.actions]);
+
   const handleAction = useCallback(
     async (
       triggerType: TTriggerValue,
       action?: TTriggerActionValue,
       params?: THandleDataParams
     ): Promise<void> => {
-      // console.log(`🚀 ~ useActionsV2 ~ action:${data?.id}`, action);
       try {
-        let triggerFull = findTriggerFullByNodeId(data?.id as string);
-        if (!triggerFull) {
-          triggerFull = getPropActions(data!);
-          if (_.isEmpty(triggerFull)) return;
-          setMultipleActions({
-            actions: {
-              [data?.id as string]: triggerFull,
-            },
-            triggerName: triggerType,
-          });
-        }
-        setTriggerName(triggerType);
+        const triggerFull = getPropActions(data!);
+        if (_.isEmpty(triggerFull)) return;
+        setMultipleActions({
+          actions: triggerFull,
+          triggerName: triggerType,
+          nodeId: data?.id as string,
+        });
         await executeTriggerActions(triggerFull, triggerType, params);
       } finally {
       }
     },
-    [data, executeTriggerActions]
+    [
+      data?.actions,
+      data?.componentProps?.dataProps,
+      data?.componentProps?.actions,
+      executeTriggerActions,
+    ]
   );
 
   return { handleAction, executeTriggerActions, executeActionFCType };

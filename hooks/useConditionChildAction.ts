@@ -1,7 +1,6 @@
 import { TAction, TConditionalChild, TConditionChildMap } from '@/types';
 
-import { actionHookSliceStore, TActionHookActions } from './store/actionSliceStore';
-import { TActionsProps } from './useActions';
+import { TActionsProps } from './useActionsV2';
 import { THandleDataParams, useHandleData } from './useHandleData';
 
 export type TUseActions = {
@@ -208,7 +207,6 @@ export const handleCompareCondition = async (
  */
 export const processCondition = async (
   conditionChild: TAction<TConditionChildMap>,
-  findAction: TActionHookActions['findAction'],
   getData: (value: any) => any,
   params?: THandleDataParams
 ): Promise<boolean> => {
@@ -248,7 +246,6 @@ export const processCondition = async (
  */
 export const useConditionChildAction = (props: TActionsProps): TUseActions => {
   // Store hooks
-  const { findAction } = actionHookSliceStore();
   const { getData } = useHandleData(props);
 
   const handleCompareConditionWrapper = async (
@@ -262,7 +259,7 @@ export const useConditionChildAction = (props: TActionsProps): TUseActions => {
     action: TAction<TConditionChildMap>,
     params?: THandleDataParams
   ): Promise<boolean> => {
-    return await processCondition(action, findAction, getData, params);
+    return await processCondition(action, getData, params);
   };
 
   return {

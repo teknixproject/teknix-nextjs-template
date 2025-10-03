@@ -1,16 +1,16 @@
 /** @jsxImportSource @emotion/react */
-import _ from 'lodash';
 import { useMemo } from 'react';
 import { FieldValues, UseFieldArrayReturn, UseFormReturn } from 'react-hook-form';
 import { useDeepCompareMemo } from 'use-deep-compare';
 
-import { useHandleData } from '@/hooks/useHandleData';
 import { GridItem } from '@/types/gridItem';
 import { getComponentType } from '@/utils/component';
 import { getPropData } from '@/utils/getDataField';
 import { cleanProps } from '@/utils/renderItem';
 import { buildStyle } from '@/utils/styleInline';
 import { convertToPlainProps } from '@/utils/transfromProp';
+
+import { useHandleProps } from './useHandleProps';
 
 export type TProps = {
   data: GridItem;
@@ -40,14 +40,16 @@ export const useRenderItem = ({
   methodsArray?: UseFieldArrayReturn<FieldValues, string, 'id'>;
 }) => {
   const valueType = useMemo(() => data?.value?.toLowerCase() || '', [data?.value]);
-  const { isNoChildren } = getComponentType(data?.value || '');
-  const { dataState } = useHandleData({
+  const { isNoChildren } = useMemo(() => getComponentType(valueType), [valueType]);
+  const { dataState } = useHandleProps({
     dataProp: getPropData(data),
     componentProps: data?.componentProps,
     valueStream,
     valueType,
     activeData: data,
     index,
+    methods,
+    methodsArray,
   });
 
   const propsCpn = useDeepCompareMemo(() => {
@@ -65,13 +67,6 @@ export const useRenderItem = ({
             ...staticProps,
           };
 
-    if (isNoChildren && 'children' in result) {
-      _.unset(result, 'children');
-    }
-
-    if ('styleMultiple' in result) _.unset(result, 'styleMultiple');
-    if ('dataProps' in result) _.unset(result, 'dataProps');
-
     const plainProps = convertToPlainProps(result);
 
     result = cleanProps(plainProps, valueType);
@@ -81,9 +76,7 @@ export const useRenderItem = ({
 
   return {
     valueType,
-    propsCpn: {
-      ...propsCpn,
-    },
+    propsCpn,
     dataState,
   };
 };
