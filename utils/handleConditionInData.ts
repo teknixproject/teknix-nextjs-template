@@ -6,7 +6,10 @@ import { TConditional, TTriggerActions } from '../types/actions';
 import { transformVariable } from './tranformVariable';
 
 const findAction = (actionId: string, triggerFull: TTriggerActions): TAction<unknown> => {
-  const onClick = triggerFull.onClick?.data || {};
+  const onClick = {
+    ...((triggerFull as any).onClick || {}),
+    ...(triggerFull.onClick?.data || {}),
+  };
   return onClick[actionId];
 };
 
