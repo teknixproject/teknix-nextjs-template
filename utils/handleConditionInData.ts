@@ -6,7 +6,7 @@ import { TConditional, TTriggerActions } from '../types/actions';
 import { transformVariable } from './tranformVariable';
 
 const findAction = (actionId: string, triggerFull: TTriggerActions): TAction<unknown> => {
-  const onClick = triggerFull.onClick || {};
+  const onClick = triggerFull.onClick?.data || {};
   return onClick[actionId];
 };
 
@@ -47,7 +47,7 @@ export const executeConditionalInData = async (
   triggerFull: TTriggerActions,
   getData: (data: TData, params?: THandleDataParams) => any
 ): Promise<void> => {
-  const onClick = triggerFull.onClick || {};
+  const onClick = triggerFull.onClick?.data || {};
   const conditionAction = Object.values(onClick).find(
     (item) => item.fcType === 'conditional'
   ) as TAction<TConditional>;
