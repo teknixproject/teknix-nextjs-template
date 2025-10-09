@@ -27,6 +27,15 @@ const standardizeActionsLevel1 = (actions: Record<string, TTriggerActionValue>) 
   );
 };
 export const getPropActions = (data: GridItem): TTriggerActions => {
+  const returnValue = (item: TTriggerActionValue) => {
+    if (item.data?.onClick?.data) {
+      return item.data?.onClick?.data;
+    }
+    if (item.data?.onClick) {
+      return item.data.onClick;
+    }
+    return item.data;
+  };
   const dataProps: TTriggerActions = data?.componentProps?.dataProps
     ?.filter((item: TTriggerActionValue & { type: string }) =>
       item.type.includes('MouseEventHandler')
@@ -36,7 +45,7 @@ export const getPropActions = (data: GridItem): TTriggerActions => {
         ...acc,
         [item.name]: {
           ...item,
-          data: item.data?.onClick ? (item.data as any).onClick : item.data,
+          data: returnValue(item),
         },
       }),
       {}
