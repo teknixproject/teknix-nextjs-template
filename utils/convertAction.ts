@@ -28,11 +28,11 @@ const standardizeActionsLevel1 = (actions: Record<string, TTriggerActionValue>) 
 };
 export const getPropActions = (data: GridItem): TTriggerActions => {
   const returnValue = (item: TTriggerActionValue) => {
-    if (item.data?.onClick) {
-      return item.data.onClick;
-    }
     if (item.data?.onClick?.data) {
       return item.data?.onClick?.data;
+    }
+    if (item.data?.onClick) {
+      return item.data.onClick;
     }
     return item.data;
   };
