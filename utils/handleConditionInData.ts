@@ -47,9 +47,12 @@ export const executeConditionalInData = async (
   triggerFull: TTriggerActions,
   getData: (data: TData, params?: THandleDataParams) => any
 ): Promise<void> => {
-  const onClick = triggerFull.onClick?.data || {};
-  const conditionAction = Object.values(onClick).find(
-    (item) => item.fcType === 'conditional'
+  const dataCondition = {
+    ...((triggerFull as any).onClick || {}),
+    ...(triggerFull.onClick?.data || {}),
+  };
+  const conditionAction = Object.values(dataCondition).find(
+    (item) => (item as unknown as TAction).fcType === 'conditional'
   ) as TAction<TConditional>;
 
   if (!conditionAction) {
