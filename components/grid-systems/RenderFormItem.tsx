@@ -17,6 +17,7 @@ import { componentRegistry } from './ListComponent';
 import RenderComponent from './RenderComponent';
 import RenderFormArrayItem from './RenderFormArray';
 import { TProps } from './RenderSliceItem';
+import { Icon } from '@iconify/react/dist/iconify.js';
 
 const RenderFormItem: FC<TProps> = (props) => {
   const { data, formKeys, valueStream, formKeysArray, index, parentPath = '' } = props;
@@ -139,19 +140,24 @@ const RenderFormItem: FC<TProps> = (props) => {
         <Controller
           control={control}
           name={nameField}
-          render={({ field }) => (
-            <DatePicker
-              {...rest}
-              {...field}
-              value={field.value ? dayjs(field.value) : null}
-              onChange={(target: any) => {
-                field.onChange(target);
-                if (typeof rest?.onChange === 'function') {
-                  rest.onChange(target);
-                }
-              }}
-            />
-          )}
+          render={({ field }) => {
+            const suffixIcon = _.get(rest, 'suffixIcon.name')
+            const suffixColor = '#10141A'
+            return (
+              <DatePicker
+                {...rest}
+                {...field}
+                value={field.value ? dayjs(field.value) : null}
+                onChange={(target: any) => {
+                  field.onChange(target);
+                  if (typeof rest?.onChange === 'function') {
+                    rest.onChange(target);
+                  }
+                }}
+                suffixIcon={<Icon color={suffixColor} icon={suffixIcon || 'heroicons:calendar-days-20-solid'} />}
+              />
+            )
+          }}
         />
       );
     }
