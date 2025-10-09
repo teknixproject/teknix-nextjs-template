@@ -1,7 +1,7 @@
 
 import React from "react";
 import CustomLink from "./Link";
-import ComponentCard from "../common/ComponentCard";
+import ComponentCard from "../../components/common/ComponentCard";
 
 export default function CustomLinkOpacityExample() {
   return (

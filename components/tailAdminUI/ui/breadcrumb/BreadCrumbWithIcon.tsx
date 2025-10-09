@@ -1,6 +1,6 @@
 import React from "react";
-import ComponentCard from "../common/ComponentCard";
 import Breadcrumb from "./Breadcrumb";
+import ComponentCard from "../../components/common/ComponentCard";
 
 export default function BreadCrumbWithIcon() {
   // Two-layer breadcrumb items

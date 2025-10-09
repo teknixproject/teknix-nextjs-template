@@ -2,8 +2,8 @@
 import React from "react";
 import PaginationWithTextWithIcon from "@/components/tailAdminUI/ui/pagination/PaginationWithTextWitIcon";
 import PaginationWithText from "./PaginationWithText";
-import ComponentCard from "../common/ComponentCard";
 import PaginationWithIcon from "./PaginationWitIcon";
+import ComponentCard from "../../components/common/ComponentCard";
 
 export default function PaginationExample() {
   const handlePageChange = (page: number) => {

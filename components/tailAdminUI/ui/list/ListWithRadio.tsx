@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import RadioSm from "../../form/input/RadioSm";
+import RadioSm from "../../components/form/input/RadioSm";
 
 export default function ListWithRadio() {
   const [selectedValue, setSelectedValue] = useState<string>("option1");

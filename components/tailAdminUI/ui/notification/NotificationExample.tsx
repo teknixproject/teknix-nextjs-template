@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
 import Notification from "./Notification";
-import ComponentCard from "../common/ComponentCard";
 import UpdateNotification from "./UpdateNotification";
 import CookieConsent from "./CookieConsent";
+import ComponentCard from "../../components/common/ComponentCard";
 
 export default function NotificationExample() {
   const handleLater = () => {

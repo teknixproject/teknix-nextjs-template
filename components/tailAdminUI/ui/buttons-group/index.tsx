@@ -1,11 +1,11 @@
 import React from "react";
-import ComponentCard from "../common/ComponentCard";
 import PrimaryButtonGroup from "./PrimaryButtonGroup";
 import ButtonGroupWithLeftIcon from "./ButtonGroupWithLeftIcon";
 import ButtonGroupWithRightIcon from "./ButtonGroupWithRightIcon";
 import SecondaryButtonGroup from "./SecondaryButtonGroup";
 import SecondaryButtonGroupWithLeftIcon from "./SecondaryButtonGroupWithLeftIcon";
 import SecondaryButtonGroupWithRightIcon from "./SecondaryButtonGroupWithRightIcon";
+import ComponentCard from "../../components/common/ComponentCard";
 
 export default function ButtonGroupExample() {
   return (

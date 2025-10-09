@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import Checkbox from "../../form/input/Checkbox";
+import Checkbox from "../../components/form/input/Checkbox";
 
 export default function ListWithCheckbox() {
   // State to manage individual checkbox values

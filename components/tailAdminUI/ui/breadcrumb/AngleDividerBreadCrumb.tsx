@@ -1,6 +1,6 @@
 import React from "react";
 import Breadcrumb from "./Breadcrumb";
-import ComponentCard from "../common/ComponentCard";
+import ComponentCard from "../../components/common/ComponentCard";
 
 export default function AngleDividerBreadCrumb() {
   // Two-layer breadcrumb items

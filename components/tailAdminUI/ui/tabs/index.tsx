@@ -1,10 +1,10 @@
 import React from "react";
-import ComponentCard from "../common/ComponentCard";
 import DefaultTab from "./DefaultTab";
 import TabWithUnderline from "./TabWithUnderline";
 import TabWithUnderlineAndIcon from "./TabWithUnderlineAndIcon";
 import TabWithBadge from "./TabWithBadge";
 import VerticalTabs from "./VerticalTabs";
+import ComponentCard from "../../components/common/ComponentCard";
 
 export default function TabExample() {
   return (
