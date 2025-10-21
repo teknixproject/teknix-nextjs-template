@@ -150,17 +150,19 @@ export default async function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
           <ReactQueryProvider>
-            <ApiStoreProvider>
-              <LayoutProvider>
-                <LayoutContent>
-                  <AntdProvider>
-                    <Providers>
-                        <SidebarProvider>{children}</SidebarProvider>
-                    </Providers>
-                  </AntdProvider>
-                </LayoutContent>
-              </LayoutProvider>
-            </ApiStoreProvider>
+            <SidebarProvider>
+              <ApiStoreProvider>
+                <LayoutProvider>
+                  <LayoutContent>
+                    <AntdProvider>
+                      <Providers>
+                        {children}
+                      </Providers>
+                    </AntdProvider>
+                  </LayoutContent>
+                </LayoutProvider>
+              </ApiStoreProvider>
+            </SidebarProvider>
           </ReactQueryProvider>
         </ThemeProvider>
 
