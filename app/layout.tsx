@@ -18,6 +18,7 @@ import { Providers } from '@/components/provider/session-provider';
 import { ThemeProvider } from "@/context/ThemeContext";
 
 import { fetchMetadata } from './actions/server';
+import { SidebarProvider } from '@/context/SidebarContext';
 
 const DEFAULT_ICONS = {
   icon: 'https://cdn.iconscout.com/icon/premium/png-256-thumb/metadata-5381957-4568609.png?f=webp',
@@ -154,7 +155,7 @@ export default async function RootLayout({
                 <LayoutContent>
                   <AntdProvider>
                     <Providers>
-                      {children}
+                        <SidebarProvider>{children}</SidebarProvider>
                     </Providers>
                   </AntdProvider>
                 </LayoutContent>
