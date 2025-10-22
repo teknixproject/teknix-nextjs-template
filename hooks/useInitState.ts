@@ -231,8 +231,8 @@ export const useInitStateRender = () => {
     };
   }, isEqual);
 
-  const { isLoading: isLoadingPageNames } = useQuery({
-    queryKey: [],
+  const { isLoading: isLoadingPageNames, data: match } = useQuery({
+    queryKey: [pathname],
     queryFn: async () => {
       const result = await documentService.getAllPageNames(
         projectId || '',
@@ -241,12 +241,16 @@ export const useInitStateRender = () => {
       const uids = result?.data?.map((item: any) => item.uid) || [];
 
       const matched = getMatchingRoutePattern(pathname, uids);
-      setUid(matched);
+      return matched;
     },
     enabled: Boolean(projectId) && Boolean(pathname),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (match) setUid(match);
+  }, [match]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
